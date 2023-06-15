@@ -1,0 +1,204 @@
+Index: bapteme_php/apprenant3/app/Controllers/StudentController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bapteme_php/apprenant3/app/Controllers/StudentController.php b/bapteme_php/apprenant3/app/Controllers/StudentController.php
+--- a/bapteme_php/apprenant3/app/Controllers/StudentController.php	(revision 89a39b6b4a9c1e7992c5bfd66e0234332176c9ae)
++++ b/bapteme_php/apprenant3/app/Controllers/StudentController.php	(date 1686772206430)
+@@ -3,8 +3,9 @@
+ namespace App\Controllers;
+ 
+ use App\Models\Student;
++use App\Models\Teacher;
+ 
+-class StudentController extends MainController 
++class StudentController extends MainController
+ {
+     public function students()
+     {
+@@ -32,10 +33,6 @@
+             $lastname = filter_input(INPUT_POST, "lastname", FILTER_SANITIZE_SPECIAL_CHARS);
+             $status = filter_input(INPUT_POST, "status", FILTER_VALIDATE_INT);
+ 
+-                $newStudent->setFirstname($firstname);
+-                $newStudent->setLastname($lastname);
+-                $newStudent->setStatus($status);
+-
+             if(empty($firstname)) {
+                 $errorList[] = "Le nom est vide !";
+             }
+@@ -50,18 +47,11 @@
+                 $errorList[] = "le prenom est vide!";
+             }
+ 
+-            // tests sur les filtres
+-            if($lastname === false) {
+-                $errorList[] = "Le prénom est invalide";
+-            }
+-            if($firstname === false) {
+-                $errorList[] = "Le le nom est invalide";
+-            }
+-            if($status === false) {
+-                $errorList[] = "le status est vide";
+-            }
+-            
+-            if(empty($errorList)) {
++			$newStudent->setFirstname($firstname);
++			$newStudent->setLastname($lastname);
++			$newStudent->setStatus($status);
++
++			if(empty($errorList)) {
+                 // aucune erreur détectée
+                 // j'ai soumis mon formulaire et je n'ai pas d'erreur
+                 $retour = $newStudent->insert();
+@@ -76,7 +66,7 @@
+                     header('Location: '.$route);
+                 }
+             }
+-        } 
++        }
+ 
+         // j'affiche la vue du formulaire dans 2 cas :
+             // 1- je n'ai pas soumis le formulaire
+@@ -84,7 +74,8 @@
+ 
+         $this->show("student/student_add", [
+             'errors' => $errorList,
+-            'student' => $newStudent
++            'student' => $newStudent,
++			'teachers' => Teacher::findAll()
+         ]);
+     }
+-}
+\ No newline at end of file
++}
+Index: bapteme_php/apprenant3/app/views/student/student_list.tpl.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bapteme_php/apprenant3/app/views/student/student_list.tpl.php b/bapteme_php/apprenant3/app/views/student/student_list.tpl.php
+--- a/bapteme_php/apprenant3/app/views/student/student_list.tpl.php	(revision 89a39b6b4a9c1e7992c5bfd66e0234332176c9ae)
++++ b/bapteme_php/apprenant3/app/views/student/student_list.tpl.php	(date 1686755890109)
+@@ -33,15 +33,15 @@
+         </tr>
+     </thead>
+     <tbody>
+-        
++
+         <?php foreach ($students as $currentStudent) : ?>
+         <tr>
+             <th scope="row"><?= $currentStudent->getId() ?></th>
+             <td><?= $currentStudent->getFirstname() ?></td>
+             <td><?= $currentStudent->getLastname() ?></td>
+-            
++
+             <td class="text-right">
+-                <a href="todo" class="btn btn-sm btn-warning">
++                <a href="<?= $router->generate('student')?>" class="btn btn-sm btn-warning">
+                     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                 </a>
+                 <div class="btn-group">
+@@ -73,4 +73,4 @@
+     </script>
+ </body>
+ 
+-</html>
+\ No newline at end of file
++</html>
+Index: bapteme_php/apprenant3/app/views/student/student_add.tpl.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bapteme_php/apprenant3/app/views/student/student_add.tpl.php b/bapteme_php/apprenant3/app/views/student/student_add.tpl.php
+--- a/bapteme_php/apprenant3/app/views/student/student_add.tpl.php	(revision 89a39b6b4a9c1e7992c5bfd66e0234332176c9ae)
++++ b/bapteme_php/apprenant3/app/views/student/student_add.tpl.php	(date 1686770506782)
+@@ -55,7 +55,7 @@
+     <div class="container my-4"> <a href="../student/list.html" class="btn btn-success float-right">Retour</a>
+         <h2>Ajouter un étudiant</h2>
+ 
+-      
++
+ 
+         <form action="<?= $router->generate('student_add') ?>" method="POST" class="mt-5">
+             <div class="form-group">
+@@ -70,17 +70,17 @@
+                 <label for="teacher">Prof</label>
+                 <select name="teacher" id="teacher" class="form-control">
+                     <option value="0">-</option>
+-                    <option value="1">Prénom Prof - Formateur PHP/MySQL</option>
+-                    <option value="2">Prénom2 Prof2 - Formateur PHP/MySQL</option>
+-                    <option value="5">sgsg fsgfsg - sg</option>
++					<?php foreach($viewData["teachers"] as $teacher): ?>
++                        <option value="<?= $teacher->getId() ?>" <?= $student->getTeacher_id() == $teacher->getId() ? "selected" : ""  ?>><?= $teacher->getFirstname() ?> - <?= $teacher->getJob() ?></option>
++					<?php endforeach; ?>
+                 </select>
+             </div>
+             <div class="form-group">
+                 <label for="status">Statut</label>
+                 <select name="status" id="status" class="form-control">
+                     <option value="0">-</option>
+-                    <option value="1">actif</option>
+-                    <option value="2">désactivé</option>
++                    <option value="1" <?= $student->getStatus() == 1 ? "selected" : "" ?>>actif</option>
++                    <option value="2" <?= $student->getStatus() == 2 ? "selected" : "" ?>>désactivé</option>
+                 </select>
+             </div>
+             <button type="submit" class="btn btn-primary btn-block mt-5">Valider</button>
+@@ -99,4 +99,4 @@
+     </script>
+ </body>
+ 
+-</html>
+\ No newline at end of file
++</html>
+Index: bapteme_php/apprenant3/app/views/main/home.tpl.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bapteme_php/apprenant3/app/views/main/home.tpl.php b/bapteme_php/apprenant3/app/views/main/home.tpl.php
+--- a/bapteme_php/apprenant3/app/views/main/home.tpl.php	(revision 89a39b6b4a9c1e7992c5bfd66e0234332176c9ae)
++++ b/bapteme_php/apprenant3/app/views/main/home.tpl.php	(date 1686755406393)
+@@ -35,7 +35,7 @@
+             <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                 <ul class="navbar-nav mr-auto">
+                     <li class="nav-item">
+-                        <a class="nav-link" href="./index.html">Accueil</a>
++                        <a class="nav-link" href="/">Accueil</a>
+                     </li>
+                     <li class="nav-item">
+                         <a class="nav-link" href="<?= $router->generate('teachers') ?>">Profs</a>
+@@ -71,4 +71,4 @@
+     </script>
+ </body>
+ 
+-</html>
+\ No newline at end of file
++</html>
+Index: bapteme_php/apprenant3/public/index.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bapteme_php/apprenant3/public/index.php b/bapteme_php/apprenant3/public/index.php
+--- a/bapteme_php/apprenant3/public/index.php	(revision 89a39b6b4a9c1e7992c5bfd66e0234332176c9ae)
++++ b/bapteme_php/apprenant3/public/index.php	(date 1686755374121)
+@@ -29,7 +29,7 @@
+ 
+ $router->map(
+     'GET',
+-    '/home',
++    '/',
+     [
+         'method' => 'home',
+         'controller' => MainController::class // On indique le FQCN de la classe
+@@ -91,4 +91,4 @@
+ // 2e argument : le "target" (controller & méthode) pour afficher la page 404
+ $dispatcher = new Dispatcher($match, '\App\Controllers\ErrorController::err404');
+ // Une fois le "dispatcher" configuré, on lance le dispatch qui va exécuter la méthode du controller
+-$dispatcher->dispatch();
+\ No newline at end of file
++$dispatcher->dispatch();

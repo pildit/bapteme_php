@@ -1,0 +1,24 @@
+Index: bapteme_php/apprenant1/app/Views/teacher/teacher_update.tpl.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bapteme_php/apprenant1/app/Views/teacher/teacher_update.tpl.php b/bapteme_php/apprenant1/app/Views/teacher/teacher_update.tpl.php
+--- a/bapteme_php/apprenant1/app/Views/teacher/teacher_update.tpl.php	(revision 89a39b6b4a9c1e7992c5bfd66e0234332176c9ae)
++++ b/bapteme_php/apprenant1/app/Views/teacher/teacher_update.tpl.php	(date 1686678992584)
+@@ -8,7 +8,7 @@
+         include __DIR__ . '/../partials/errors.tpl.php';
+     ?>
+ 
+-    <form action="<?= $router->generate('teacher_update_post') ?>" method="POST" class="mt-5">
++    <form action="<?= $router->generate('teacher_update_post', [ "teacherid" => $teacher->getId() ]) ?>" method="POST" class="mt-5">
+         <div class="form-group">
+             <label for="firstname">Prénom</label>
+             <input type="text" class="form-control" name="firstname" id="firstname" placeholder="" value="<?= $teacher->getFirstname() ?>">
+@@ -31,4 +31,4 @@
+         </div>
+         <button type="submit" class="btn btn-primary btn-block mt-5">Valider</button>
+     </form>
+-</div>
+\ No newline at end of file
++</div>
